@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/root"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context="com.example.screeningapplication.LoginActivity">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_weight="1"
+        android:orientation="vertical">
+        <LinearLayout
+            android:id="@+id/login_bg"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:orientation="vertical"
+            android:background="@drawable/bg01">
+        </LinearLayout>
+
+        <ScrollView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:fillViewport="true"
+            android:orientation="vertical"
+            android:scrollbars="vertical">
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:layout_marginTop="50dp">
+
+                <EditText
+                    android:id="@+id/username_edittext"
+                    android:hint="请输入昵称"
+                    android:textSize="21dp"
+                    android:layout_gravity="center_horizontal"
+                    android:layout_width="380dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="10dp"
+                    android:layout_marginBottom="5dp"/>
+                <RelativeLayout
+                    android:layout_width="380dp"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_horizontal"
+                    android:layout_marginBottom="20dp"
+                    android:orientation="horizontal">
+                    <EditText
+                        android:id="@+id/password_edittext"
+                        android:hint="请输入会议号"
+                        android:inputType="textPassword"
+                        android:textSize="21dp"
+                        android:layout_gravity="center_horizontal"
+                        android:layout_width="380dp"
+                        android:layout_height="wrap_content"
+                        android:textCursorDrawable="@null"
+                        android:layout_marginLeft="0dp"/>
+                    <ToggleButton
+                        android:id="@+id/togglePwd"
+                        android:layout_width="30dp"
+                        android:layout_height="20dp"
+                        android:background="@drawable/eye02"
+                        android:textOff=""
+                        android:textOn=""
+                        android:padding="20dp"
+                        android:layout_alignParentRight="true"
+                        android:layout_centerVertical="true"/>
+                </RelativeLayout>
+
+            </LinearLayout>
+
+        </ScrollView>
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:layout_marginTop="10dp"
+        android:layout_marginBottom="30dp">
+        <Button
+            android:id="@+id/login_btn"
+            android:text="连接"
+            android:textSize="24dp"
+            android:layout_gravity="center_horizontal"
+            android:textColor="#ffffff"
+            android:background="@drawable/button"
+            android:layout_width="360dp"
+            android:layout_height="40dp" />
+    </LinearLayout>
+</LinearLayout>
