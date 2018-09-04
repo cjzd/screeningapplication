@@ -14,6 +14,7 @@ import android.graphics.drawable.Drawable;
 import android.os.IBinder;
 import android.support.annotation.MainThread;
 import android.support.v4.content.LocalBroadcastManager;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.text.method.HideReturnsTransformationMethod;
@@ -29,6 +30,9 @@ import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.Toast;
 import android.widget.ToggleButton;
+
+import java.util.Timer;
+import java.util.TimerTask;
 
 
 public class LoginActivity extends AppCompatActivity implements View.OnClickListener{
@@ -60,6 +64,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
     private int chairManFlag = 2;//0=非主席，1=主席
     private int sameNameFlag = 2;//0=不重名，1=重名
     private int rootBottom = Integer.MIN_VALUE;
+    private Timer timer;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -73,7 +78,6 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
         togglePwd = (ToggleButton) findViewById(R.id.togglePwd);
         passwordText = (EditText) findViewById(R.id.password_edittext);
         usernameText = (EditText) findViewById(R.id.username_edittext);
-        meetingRoom = passwordText.getText().toString();
         Button login = (Button) findViewById(R.id.login_btn);
         login.setOnClickListener(LoginActivity.this);
         dialog = new ProgressDialog(this);
@@ -125,14 +129,44 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
         });
     }
 
+
+
     @Override
     public void onClick(View view) {
         switch (view.getId()){
             case R.id.login_btn:
+                timer = new Timer();
+                timer.schedule(new TimerTask() {
+                    @Override
+                    public void run() {
+                        dialog.dismiss();
+                        final AlertDialog.Builder alertDialog = new AlertDialog.Builder(LoginActivity.this);
+                        alertDialog.setTitle("连接失败");
+                        alertDialog.setMessage("输入的会议号可能出错了");
+                        alertDialog.setPositiveButton("确定", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialogInterface, int i) {
+
+                            }
+                        });
+                        alertDialog.setCancelable(false);
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                alertDialog.show();
+                            }
+                        });
+                       unbindService(connection);
+                    }
+                }, 4000);
                 userName = usernameText.getText().toString();
                 meetingRoom = passwordText.getText().toString();
-                if (!checkInput()){
-                    Toast.makeText(this, "请输入用户名", Toast.LENGTH_SHORT).show();
+                if (!checkUserName()){
+                    Toast.makeText(this, "投屏：请输入用户名", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+                if (!checkUseMeetingRoom()){
+                    Toast.makeText(this, "投屏：请输入正确的会议号", Toast.LENGTH_SHORT).show();
                     return;
                 }
                 SharedPreferences.Editor editor = preferences.edit();
@@ -158,10 +192,20 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
     }
 
     /*
-    * 检查输入是否合法
+    * 检查用户名是否已经输入
     * */
-    private boolean checkInput(){
+    private boolean checkUserName(){
         if (userName.isEmpty()){
+            return false;
+        }
+        return true;
+    }
+
+    /*
+    * 检查会议号是否符合规范
+    * */
+    private boolean checkUseMeetingRoom(){
+        if(meetingRoom.length() != 4){
             return false;
         }
         return true;
@@ -174,7 +218,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
     class LocalReceiver extends BroadcastReceiver {
         @Override
         public void onReceive(Context context, Intent intent) {
-            Toast.makeText(MyApplication.getContext(), "收到广播了", Toast.LENGTH_SHORT).show();
+//            Toast.makeText(MyApplication.getContext(), "收到广播了", Toast.LENGTH_SHORT).show();
             int category = intent.getIntExtra("category", -1);
             switch (category){
                 //主席信号
@@ -183,6 +227,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
                     if (sameNameFlag == 0){ //是主席，不重名，Activity跳转
                         LogUtil.i("LocalReceiver", "是主席，不重名，Activity跳转");
                         dialog.dismiss();
+                        timer.cancel();
                         ChairmanActivity.actionStart(LoginActivity.this);
                         unbindService(connection);
                         LoginActivity.this.finish();
@@ -198,6 +243,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
                     if (sameNameFlag == 0){ //非主席，不重名，Activity跳转
                         LogUtil.i("LocalReceiver", "非主席，不重名，Activity跳转");
                         dialog.dismiss();
+                        timer.cancel();
                         NonchairmanActivity.startActivity(LoginActivity.this);
                         unbindService(connection);
                         LoginActivity.this.finish();
@@ -219,12 +265,15 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
                     if (chairManFlag == 0){ //不重名，非主席，Activity跳转
                         LogUtil.i("LocalReceiver", "不重名，非主席，Activity跳转");
                         dialog.dismiss();
+                        timer.cancel();
                         NonchairmanActivity.startActivity(LoginActivity.this);
                         unbindService(connection);
                         LoginActivity.this.finish();
 
                     }else if(chairManFlag == 1){ //不重名，是主席，Activity跳转
                         LogUtil.i("LocalReceiver", "不重名，是主席，Activity跳转");
+                        dialog.dismiss();
+                        timer.cancel();
                         ChairmanActivity.actionStart(LoginActivity.this);
                         unbindService(connection);
 //                        LoginActivity.this.finish();
@@ -233,8 +282,24 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
                 case Category.FAILED_TO_CONNECT:
                     LogUtil.i("LocalReceiver", "socket连接失败");
                     dialog.dismiss();
-                    Toast.makeText(LoginActivity.this, "socket连接失败", Toast.LENGTH_SHORT)
-                            .show();
+                    timer.cancel();
+                    //连接失败，弹出提示框
+                    final AlertDialog.Builder alertDialog = new AlertDialog.Builder(LoginActivity.this);
+                    alertDialog.setTitle("连接失败");
+                    alertDialog.setMessage("输入的会议号可能出错了");
+                    alertDialog.setPositiveButton("确定", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialogInterface, int i) {
+                            //没操作
+                        }
+                    });
+                    alertDialog.setCancelable(false);
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            alertDialog.show();
+                        }
+                    });
                     break;
                 default:
                     break;

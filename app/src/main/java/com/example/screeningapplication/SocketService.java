@@ -14,8 +14,10 @@ import java.io.OutputStream;
 import java.io.Serializable;
 import java.net.Socket;
 import java.util.ArrayList;
+import java.util.Timer;
 
 public class SocketService extends Service {
+
     private static final String TAG = "SocketService";
     private SendMsgBinder mBinder = new SendMsgBinder();
     private Socket mSocket;
@@ -26,7 +28,8 @@ public class SocketService extends Service {
     private String username;
     private ArrayList<UserInfo> usersInfoArrayList;
     private LocalBroadcastManager localBroadcastManager =
-            LocalBroadcastManager.getInstance(MyApplication.getContext());;
+            LocalBroadcastManager.getInstance(MyApplication.getContext());
+    private Timer timer;
 
     public SocketService() {
     }
@@ -59,7 +62,6 @@ public class SocketService extends Service {
                         if (mSocket.isConnected()){
                             os = mSocket.getOutputStream();
                             is = mSocket.getInputStream();
-                            Log.e(TAG, "run,,,,,,,,,,,,,,,,: ");
                             String chairRequest = "ChairRequest\0";
                             os.write(chairRequest.getBytes());
                             os.flush();
