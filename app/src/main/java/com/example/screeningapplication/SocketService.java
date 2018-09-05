@@ -15,6 +15,7 @@ import java.io.Serializable;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.Timer;
+import java.util.TimerTask;
 
 public class SocketService extends Service {
 
@@ -79,6 +80,7 @@ public class SocketService extends Service {
                     } catch (Exception e) {
                         e.printStackTrace();
                         LogUtil.e("mSocket","socket连接失败");
+                        mSocket = null;
                         Intent intent = new Intent("com.example.screeningapplication.LOCAL_BROADCAST");
                         intent.putExtra("category", Category.FAILED_TO_CONNECT);
                         localBroadcastManager.sendBroadcast(intent);
@@ -173,7 +175,7 @@ public class SocketService extends Service {
         public void stopSocket(){
             if (mSocket != null){
                 try {
-                    mSocket.shutdownOutput();
+                     mSocket.shutdownOutput();
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
@@ -300,6 +302,19 @@ public class SocketService extends Service {
         }
         //收到心跳了，给回一个
         if (msg.contains("Heart1")){
+            if (timer != null){
+                timer.cancel();
+                timer = null;
+            }
+            timer = new Timer();
+            timer.schedule(new TimerTask() {
+                @Override
+                public void run() {
+                    Intent intent = new Intent("com.example.screeningapplication.LOCAL_BROADCAST");
+                    intent.putExtra("category", Category.FAILED_TO_CONNECT);
+                    localBroadcastManager.sendBroadcast(intent);
+                }
+            }, 7000);
             sendHeart1();
         }
     }

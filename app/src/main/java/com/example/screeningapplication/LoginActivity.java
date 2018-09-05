@@ -135,6 +135,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
     public void onClick(View view) {
         switch (view.getId()){
             case R.id.login_btn:
+                //连接超时
                 timer = new Timer();
                 timer.schedule(new TimerTask() {
                     @Override
@@ -142,7 +143,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
                         dialog.dismiss();
                         final AlertDialog.Builder alertDialog = new AlertDialog.Builder(LoginActivity.this);
                         alertDialog.setTitle("连接失败");
-                        alertDialog.setMessage("输入的会议号可能出错了");
+                        alertDialog.setMessage("wifi连接超时，输入的会议号可能出错了");
                         alertDialog.setPositiveButton("确定", new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialogInterface, int i) {
@@ -286,7 +287,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
                     //连接失败，弹出提示框
                     final AlertDialog.Builder alertDialog = new AlertDialog.Builder(LoginActivity.this);
                     alertDialog.setTitle("连接失败");
-                    alertDialog.setMessage("输入的会议号可能出错了");
+                    alertDialog.setMessage("wifi连接失败，输入的会议号可能出错了");
                     alertDialog.setPositiveButton("确定", new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialogInterface, int i) {

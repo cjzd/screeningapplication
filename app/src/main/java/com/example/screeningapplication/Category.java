@@ -15,5 +15,4 @@ public class Category {
     public static final int GET_OFF = 7; //用户下线
     public static final int ROLE_TRANSFER = 8; //角色转移
     public static final int FAILED_TO_CONNECT = 9; //socket连接失败
-
 }

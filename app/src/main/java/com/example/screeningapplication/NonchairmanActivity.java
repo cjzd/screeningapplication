@@ -4,6 +4,7 @@ import android.Manifest;
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.ServiceConnection;
@@ -16,8 +17,10 @@ import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.content.LocalBroadcastManager;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.Toast;
@@ -104,7 +107,7 @@ public class NonchairmanActivity extends AppCompatActivity implements View.OnCli
     class LocalReceiver extends BroadcastReceiver {
         @Override
         public void onReceive(Context context, Intent intent) {
-            Toast.makeText(MyApplication.getContext(), "主席收到广播了", Toast.LENGTH_SHORT).show();
+//            Toast.makeText(MyApplication.getContext(), "主席收到广播了", Toast.LENGTH_SHORT).show();
             int category = intent.getIntExtra("category", -1);
             String userId;
             int status;
@@ -131,6 +134,18 @@ public class NonchairmanActivity extends AppCompatActivity implements View.OnCli
                 case Category.ROLE_TRANSFER:
                     roalChange = true;
                     ChairmanActivity.actionStart(NonchairmanActivity.this);
+                    break;
+                case Category.FAILED_TO_CONNECT:
+                    AlertDialog.Builder dialog = new AlertDialog.Builder(NonchairmanActivity.this);
+                    dialog.setTitle("断开连接");
+                    dialog.setMessage("与服务端断开了连接");
+                    dialog.setPositiveButton("确定", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialogInterface, int i) {
+                            finish();
+                        }
+                    });
+                    dialog.show();
                     break;
                 default:
                     break;
